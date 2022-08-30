@@ -39,7 +39,7 @@ for group_num = 1 : train_group_num
             img_bg = create_star_gaussian_custom(star_num, img_height, img_width);  % 生成背景
             img_bg = add_noise(img_bg, noise_mean, noise_var);  % 背景加噪
         case 'half_phy'
-            backImRead = imread('./image/img2.jpg');
+            backImRead = imread('../image/img2.jpg');
             img_bg = backImRead(:,:,1);
     end
     %% 生成目标 + 背景融合 
