@@ -2,8 +2,10 @@
 
 %% 仿真参数
 simu_type = 'pure';  % 仿真类型 'pure'：纯仿真; 'half_phy'：半物理仿真
+dataset_type = 'train';  % 要生成的数据集类型：'train' 'test' 'val'
 
-target_num = 3;  % 设定视场里生成目标的个数
+target_num_mode = 'fixed_num';  % 'random_num' or 'fixed_num'
+target_num = 3;  % 设定视场里生成目标的个数 
 target_size_kinds = [3 5];  % 生成目标的所有可能大小
 target_SNR = 3;  % 设定目标信噪比（给定背景噪声）
 target_starLevel = 10;  % 设定目标星等
@@ -27,17 +29,46 @@ traindata_save_path = strcat(traindata_save_path, '/');
 trainlabel_save_path = strcat(train_save_path, strcat('labels/', strcat('snr',num2str(target_SNR))));
 trainlabel_save_path = strcat(trainlabel_save_path, '/');
 
-train_group_num = 1300;
-val_group_num = 100;
-test_group_num = 200;
+val_save_path = 'E:/KeTi/SpTarSim/code/SimuSystem/result/pure_sim/val/';
+valdata_save_path = strcat(val_save_path, strcat('series_frames/', strcat('snr',num2str(target_SNR))));
+valdata_save_path = strcat(valdata_save_path, '/');
+vallabel_save_path = strcat(val_save_path, strcat('labels/', strcat('snr',num2str(target_SNR))));
+vallabel_save_path = strcat(vallabel_save_path, '/');
+
+test_save_path = 'E:/KeTi/SpTarSim/code/SimuSystem/result/pure_sim/test/';
+testdata_save_path = strcat(test_save_path, strcat('series_frames/', strcat('snr',num2str(target_SNR))));
+testdata_save_path = strcat(testdata_save_path, '/');
+testlabel_save_path = strcat(test_save_path, strcat('labels/', strcat('snr',num2str(target_SNR))));
+testlabel_save_path = strcat(testlabel_save_path, '/');
+
+train_group_num = 10000;  % 改了这
+val_group_num = 2000;
+test_group_num = 2000;
+
+switch dataset_type
+    case 'train'
+        max_group_num = train_group_num;
+        data_save_path = traindata_save_path;
+        label_save_path = trainlabel_save_path;
+    case 'test'
+        max_group_num = test_group_num;
+        data_save_path = testdata_save_path;
+        label_save_path = testlabel_save_path;
+    case 'val'
+        max_group_num = val_group_num;
+        data_save_path = valdata_save_path;
+        label_save_path = vallabel_save_path;
+end
 
 %% 主循环
-for group_num = 1 : train_group_num
+rng('shuffle');
+for group_num = 1 : max_group_num
     %% 获得背景
     switch simu_type
         case 'pure'
             img_bg = create_star_gaussian_custom(star_num, img_height, img_width);  % 生成背景
-            img_bg = add_noise(img_bg, noise_mean, noise_var);  % 背景加噪
+            img_bg_keep = img_bg;
+            % img_bg = add_noise(img_bg, noise_mean, noise_var);  % 背景加噪
         case 'half_phy'
             backImRead = imread('../image/img2.jpg');
             img_bg = backImRead(:,:,1);
@@ -45,6 +76,19 @@ for group_num = 1 : train_group_num
     %% 生成目标 + 背景融合 
     [m, n] = size(img_bg);  % 背景图像尺寸
 
+    % 如果target_num设成每条序列帧随机的，则随机生成本条序列帧的包含的目标数
+    switch target_num_mode
+        case 'random_num'
+            random_for_target_num = rand;
+            if random_for_target_num < 0.33
+                target_num = 3;
+            elseif random_for_target_num > 0.67
+                target_num = 2;
+            else
+                target_num = 1;
+            end
+    end
+    
     % 随机生成每个目标的初始位置、大小、轨迹方向
     target_init_pos = zeros(target_num, 2);
     target_size = [];
@@ -82,6 +126,8 @@ for group_num = 1 : train_group_num
     % 生成序列帧
     for i = 0 : frame_num - 1
 
+        img_bg = add_noise(img_bg_keep, noise_mean, noise_var);  % 背景加噪
+        
         target_pos = zeros(target_num, 2);  % 记录每个目标位置的矩阵
         target_mag = [];  % 记录每个目标中心灰度值的向量
 
@@ -98,20 +144,21 @@ for group_num = 1 : train_group_num
 
         % 生成目标
         target = create_target_gaussian(target_num, target_size, target_pos, target_mag, m, n);   % 将此函数参数改为传入向量
+        
         % 目标背景融合
         fuse_result = fuse_add(target, img_bg);  % 储存图片结果前的最后一步，这里面含有mat2gray图片归一化操作，后面imwrite会有像素值自动乘255
         
         % 输出目标位置标签
         % [status, msg, msgID] = mkdir(trainlabel_save_path, num2str(group_num-1));
         % folder_path = strcat(trainlabel_save_path, strcat(num2str(group_num), '/'));
-        label_path = strcat(trainlabel_save_path, strcat(num2str(group_num-1), '.txt'));
+        label_path = strcat(label_save_path, strcat(num2str(group_num-1), '.txt'));
         output_label(label_path, i, target_num, target_pos, target_size, m, n);
         
         % 储存图片
     %     save_name = strcat('target', strcat(num2str(i),'.jpg'));
     %     imwrite(target, strcat(save_path, save_name));
-        [status, msg, msgID] = mkdir(traindata_save_path, num2str(group_num-1));
-        img_save_path = strcat(traindata_save_path, strcat(num2str(group_num-1), '/'));
+        [status, msg, msgID] = mkdir(data_save_path, num2str(group_num-1));
+        img_save_path = strcat(data_save_path, strcat(num2str(group_num-1), '/'));
         img_save_path
         save_name = strcat(num2str(i), '.png');
         imwrite(fuse_result, strcat(img_save_path, save_name));
