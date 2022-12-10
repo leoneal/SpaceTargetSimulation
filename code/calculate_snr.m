@@ -25,8 +25,6 @@ function snr = calculate_snr(img, x, y, target_size)
             neibor_region = [neibor_region double(img(i, j))];
         end
     end
-%     target_region
-%     neibor_region
     
     mu_b = mean(neibor_region); % 邻域噪声的均值
     sigma_b = std(neibor_region);  % 邻域噪声的标准差

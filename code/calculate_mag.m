@@ -148,7 +148,6 @@ function mag = calculate_mag(snr, img_bg, x, y, target_size)
             [dt1, dt2] = size(target_region_ori);
         end
      
-        
         Z = Z + target_region_ori;
         mu_t = mean(mean(Z));
         snr_tmp = (mu_t - mu_b) / sigma_b;

@@ -1,0 +1,21 @@
+\cgidef{ -tex -oglu -bib -cat
+\SAO	#1{\W{SAO}{http://vizier.u-strasbg.fr/viz-bin/VizieR-5?-source=1131\&SAO=#1}{SAO #1} (\objS{SAO #1}{Simbad})}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% To convert to HTML, use cgiprint
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{HEAD}
+\title{Some Errors found in the SAO Star Catalogue}
+\end{HEAD}
+\JavaPop
+\begin{BODY bgcolor=white}
+\begin{quote}\em
+  The SAO catalog contain numerous errors which were detected and
+  corrected in the \glutag{Simbad} database.
+\end{quote}
+See also the \W{annot_SAO}{http://cdsannotations.u-strasbg.fr/annotations/vizierTable/I\%252F131A\%252Fsao}{annotations on the SAO catalog}:
+\begin{itemize}
+\item        \SAO{251015}: the spectral type is not {\bf F0}, but is {\bf C} (Carbon).
+\end{itemize}
+{\em Last revised: 08 Jan.  2012 \qquad (Fran\c cois Ochsenbein)}
+\CDStailmenu{\thefile}

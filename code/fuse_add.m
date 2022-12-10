@@ -14,8 +14,5 @@ function img_out = fuse_add(target_img, bg_img)
     %img_out = uint8((double(img_out)/65535)*255);
     %img_out = mat2gray(img_out, [0 255])
     imwrite(img_out, 'target+bg+noise.png')
-    % img = imread('target+bg+noise.png');
     
-%     figure(3)
-%     imshow(img_out);
 end
