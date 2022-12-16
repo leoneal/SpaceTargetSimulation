@@ -8,6 +8,9 @@ frame_num = 8;  % 输出的帧数
 noise_mean = 10;  %背景高斯噪声均值
 noise_var = 15;  % 背景高斯噪声方差
 noise_lambda = 20;  % 背景泊松噪声的参数
+hot_pixel_prob = 0.2;  % 背景中加入热像素噪声的概率
+hot_pixel_num = 2; % 背景中热像素的个数
+hot_pixel_val = 200; % 背景中热像素的像素值
 make_non_uniform_bg = false;  % 设定是否要在背景上添加非均匀杂散光
 non_uniform_mode = 'gaussian';  % 背景杂光的分布模式: 'linear' 'gaussian'
 non_uniform_min_gray = 30;  % 背景线性杂光的最小灰度
@@ -169,7 +172,7 @@ for group_num = 1 : max_group_num
         % 生成序列帧
         for i = 0 : frame_num - 1
 
-            img_bg_up = add_noise(img_bg_keep, noise_mean, noise_var);  % 背景加噪
+            img_bg_up = add_noise(img_bg_keep, noise_mean, noise_var, noise_lambda, hot_pixel_prob, hot_pixel_num, hot_pixel_val);  % 背景加噪
 
             target_pos = zeros(target_num, 2);  % 记录每个目标位置的矩阵
             target_mag = [];  % 记录每个目标中心灰度值的向量
@@ -300,7 +303,7 @@ for group_num = 1 : max_group_num
         % 生成序列帧
         for i = 0 : frame_num - 1
 
-            img_bg = add_noise(img_bg_keep, noise_mean, noise_var);  % 背景加噪
+            img_bg = add_noise(img_bg_keep, noise_mean, noise_var, noise_lambda, hot_pixel_prob, hot_pixel_num, hot_pixel_val);  % 背景加噪
 
             target_pos = zeros(target_num, 2);  % 记录每个目标位置的矩阵
             target_mag = [];  % 记录每个目标中心灰度值的向量
