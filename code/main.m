@@ -2,12 +2,13 @@
 
 %% 仿真参数
 simu_type = 'pure';  % 仿真类型 'pure'：纯仿真; 'half_phy'：半物理仿真
-dataset_type = 'train';  % 要生成的数据集类型：'train' 'test' 'val'
+dataset_type = 'val';  % 要生成的数据集类型：'train' 'test' 'val'
 
 frame_num = 8;  % 输出的帧数
-noise_mean = 10;  %背景噪声均值
-noise_var = 15;  % 背景噪声方差
-make_non_uniform_bg = true;  % 设定是否要在背景上添加非均匀杂散光
+noise_mean = 10;  %背景高斯噪声均值
+noise_var = 15;  % 背景高斯噪声方差
+noise_lambda = 20;  % 背景泊松噪声的参数
+make_non_uniform_bg = false;  % 设定是否要在背景上添加非均匀杂散光
 non_uniform_mode = 'gaussian';  % 背景杂光的分布模式: 'linear' 'gaussian'
 non_uniform_min_gray = 30;  % 背景线性杂光的最小灰度
 non_uniform_max_gray = 100;  % 背景线性杂光的最大灰度
@@ -60,7 +61,7 @@ testlabel_save_path = strcat(test_save_path, strcat('labels/', strcat('snr',num2
 testlabel_save_path = strcat(testlabel_save_path, '/');
 
 train_group_num = 20000;
-val_group_num = 2000;
+val_group_num = 2;
 test_group_num = 2000;
 
 switch dataset_type
